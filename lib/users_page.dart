@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:hive/hive.dart';
 
 class User {
   final int id;
@@ -51,7 +52,32 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
-    _futureUsers = fetchUsers();
+
+    // Try to load cached users first (synchronous) and then refresh from network.
+    final box = Hive.box('usersBox');
+    final cachedJson = box.get('usersJson') as String?;
+    print('Loaded cached users JSON: $cachedJson');
+
+    if (cachedJson != null) {
+      try {
+        final List data = jsonDecode(cachedJson) as List;
+        final cachedUsers =
+            data.map((e) => User.fromJson(e as Map<String, dynamic>)).toList();
+        // show cached immediately
+        _futureUsers = Future.value(cachedUsers);
+        // also refresh in background
+        fetchUsers().then((fresh) {
+          setState(() {
+            _futureUsers = Future.value(fresh);
+          });
+        }).catchError((_) {});
+      } catch (e) {
+        // parsing cache failed, fallback to network
+        _futureUsers = fetchUsers();
+      }
+    } else {
+      _futureUsers = fetchUsers();
+    }
   }
 
   Future<List<User>> fetchUsers({bool useBrowserUA = false}) async {
@@ -73,9 +99,16 @@ class _UsersPageState extends State<UsersPage> {
 
       if (resp.statusCode == 200) {
         final List data = jsonDecode(resp.body) as List;
-        return data
+        final users = data
             .map((e) => User.fromJson(e as Map<String, dynamic>))
             .toList();
+
+        // Cache raw JSON string in Hive for quick load later
+        final box = Hive.box('usersBox');
+        await box.put('usersJson', resp.body);
+        await box.put('usersFetchedAt', DateTime.now().toIso8601String());
+
+        return users;
       } else {
         throw Exception('Failed to load users: ${resp.statusCode}\nBody: ${resp.body}');
       }
@@ -133,35 +166,43 @@ class _UsersPageState extends State<UsersPage> {
           }
 
           final users = snapshot.data ?? [];
-          return ListView.separated(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: users.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final user = users[index];
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                clipBehavior: Clip.hardEdge,
-                elevation: 2,
-                child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  title: Text(user.name),
-                  subtitle: Text('${user.email}\n${user.city}'),
-                  isThreeLine: true,
-                  trailing: TextButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Tapped ${user.name}')),
-                      );
-                    },
-                    child: const Text('Tap'),
-                  ),
-                ),
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              final fresh = await fetchUsers();
+              setState(() {
+                _futureUsers = Future.value(fresh);
+              });
             },
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: users.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  elevation: 2,
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    title: Text(user.name),
+                    subtitle: Text('${user.email}\n${user.city}'),
+                    isThreeLine: true,
+                    trailing: TextButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Tapped ${user.name}')),
+                        );
+                      },
+                      child: const Text('Tap'),
+                    ),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

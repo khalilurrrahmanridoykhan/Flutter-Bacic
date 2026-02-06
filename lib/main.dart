@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:first_app/users_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  // Open a box for caching API results
+  await Hive.openBox('usersBox');
   runApp(const MyApp());
 }
 
