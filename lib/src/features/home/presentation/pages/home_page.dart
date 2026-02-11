@@ -37,6 +37,31 @@ class HomePage extends StatelessWidget {
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 32),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.blue),
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/about');
+                },
+                child: const Text(
+                  'About',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
               Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(
@@ -51,7 +76,9 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  onPressed: handleLogout,
+                  onPressed: () {
+                    handleLogout();
+                  },
                   child: const Text(
                     'Logout',
                     style: TextStyle(
@@ -62,6 +89,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
