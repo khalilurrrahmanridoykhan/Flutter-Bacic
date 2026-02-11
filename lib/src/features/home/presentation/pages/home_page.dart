@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auth_app/src/core/config/app_env.dart';
 import 'package:auth_app/src/core/services/auth_service.dart';
 import 'package:auth_app/src/features/auth/presentation/pages/login_page.dart';
+import 'package:auth_app/src/core/widgets/app_button.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -37,56 +38,20 @@ class HomePage extends StatelessWidget {
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.blue),
-                  padding: MaterialStateProperty.all(
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
+              AppButton(
+                label: 'About',
                 onPressed: () {
                   Navigator.of(context).pushNamed('/about');
                 },
-                child: const Text(
-                  'About',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
               ),
               const SizedBox(height: 32),
               Align(
                 alignment: Alignment.center,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.blue),
-                    padding: MaterialStateProperty.all(
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    ),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    handleLogout();
-                  },
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                child: AppButton(
+                  label: 'Logout',
+                  onPressed: handleLogout,
+                  backgroundColor: const Color(0xFFDC2626),
+                  disabledColor: const Color(0xFFFCA5A5),
                 ),
               ),
               const SizedBox(height: 16),

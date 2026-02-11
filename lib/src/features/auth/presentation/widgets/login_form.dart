@@ -1,5 +1,6 @@
 import 'package:auth_app/src/core/services/auth_service.dart';
 import 'package:auth_app/src/core/config/app_env.dart';
+import 'package:auth_app/src/core/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatefulWidget {
@@ -97,12 +98,10 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _onLoginPressed,
-                  child: const Text("Login"),
-                ),
+              AppButton(
+                label: 'Login',
+                onPressed: _onLoginPressed,
+                isLoading: _isLoading,
               ),
             ],
           ),
