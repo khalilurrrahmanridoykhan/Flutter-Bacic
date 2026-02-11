@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auth_app/src/core/config/app_env.dart';
 import 'package:auth_app/src/core/services/auth_service.dart';
 import 'package:auth_app/src/features/auth/presentation/pages/login_page.dart';
 
@@ -8,7 +9,8 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<void> handleLogout() async {
-      final authService = AuthService(baseUrl: 'https://songhaa.com');
+      await AppEnv.init();
+      final authService = AuthService(baseUrl: AppEnv.baseUrl);
       await authService.logout();
       if (!context.mounted) return;
       Navigator.of(context).pushAndRemoveUntil(

@@ -1,4 +1,5 @@
 import 'package:auth_app/src/core/services/auth_service.dart';
+import 'package:auth_app/src/core/config/app_env.dart';
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatefulWidget {
@@ -30,7 +31,8 @@ class _LoginFormState extends State<LoginForm> {
     setState(() => _isLoading = true);
 
     try {
-      final authService = AuthService(baseUrl: 'https://songhaa.com');
+      await AppEnv.init();
+      final authService = AuthService(baseUrl: AppEnv.baseUrl);
       await authService.login(username, password);
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/home');
