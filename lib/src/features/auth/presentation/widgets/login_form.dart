@@ -9,20 +9,20 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _onLoginPressed() {
-    final email = _emailController.text.trim();
+  Future<void> _onLoginPressed() async {
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
     print(
-      'Attempting login with email: $email and password: ${'*' * password.length}',
+      'Attempting login with username: $username and password: ${'*' * password.length}',
     );
 
-    if (email.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email and password cannot be empty')),
+        const SnackBar(content: Text('Username and password cannot be empty')),
       );
       return;
     }
@@ -30,14 +30,18 @@ class _LoginFormState extends State<LoginForm> {
     setState(() => _isLoading = true);
 
     try {
-      final authService = AuthService(baseUrl: 'https://your-api.com');
-      authService.login(email, password);
+      final authService = AuthService(baseUrl: 'https://songhaa.com');
+      await authService.login(username, password);
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/home');
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
+      print('Login failed: $e');
     } finally {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -64,11 +68,11 @@ class _LoginFormState extends State<LoginForm> {
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                controller: _usernameController,
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                  labelText: "Email",
-                  hintText: "Enter your email",
+                  labelText: "Username",
+                  hintText: "Enter your username",
                   border: OutlineInputBorder(),
                 ),
               ),

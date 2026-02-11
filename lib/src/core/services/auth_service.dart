@@ -20,11 +20,11 @@ class AuthService {
   AuthService({required this.baseUrl, http.Client? client})
     : client = client ?? http.Client();
 
-  Future<AuthTokens> login(String email, String password) async {
+  Future<AuthTokens> login(String username, String password) async {
     final res = await client.post(
       Uri.parse('$baseUrl/api/auth/login/'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({'username': username, 'password': password}),
     );
 
     if (res.statusCode == 200 || res.statusCode == 201) {
